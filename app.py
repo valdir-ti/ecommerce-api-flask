@@ -1,11 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # inicializa o Flask
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecommerce.db'
 
 db = SQLAlchemy(app)
+CORS(app)
 
 # Modelagem dos dados
 # Produto(id, name, price, description)
