@@ -20,6 +20,7 @@ class Product(db.Model):
 def helloWorld():
     return 'App is running!' 
 
+# Add Product
 @app.route('/api/products/add', methods=['POST'])
 def add_product():
     data = request.json
@@ -30,6 +31,18 @@ def add_product():
         return jsonify({'message': 'Produto added successfully'})
     
     return jsonify({'message': 'Invalid product data'}), 400
+
+# Delete Product
+@app.route('/api/products/delete/<int:product_id>', methods=['DELETE'])
+def delete_product(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({'message': 'Product deleted successfully'})
+
+    return jsonify({'message': 'Product not found'}), 404
+
 
 # Executando o app com o método de depuração ativado
 if __name__ == '__main__':
