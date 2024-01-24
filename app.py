@@ -78,6 +78,21 @@ def update_product(product_id):
 
     return jsonify({'message': 'Product updated successfully'})
 
+# Get Products List
+@app.route('/api/products', methods=['GET'])
+def get_products():
+    products = Product.query.all()
+    product_list = []
+    for product in products:
+        product_data = {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+        }
+        product_list.append(product_data)
+
+    return jsonify(product_list)
+    
 # Executando o app com o método de depuração ativado
 if __name__ == '__main__':
     app.run(debug=True)
