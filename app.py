@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
 # inicializa o Flask
 app = Flask(__name__)
@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=True)
+    cart = db.relationship('CartItem', backref='user', lazy=True)
 
 # Produto(id, name, price, description)
 class Product(db.Model):
@@ -27,6 +28,12 @@ class Product(db.Model):
     name = db.Column(db.String(120), nullable=False)
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text, nullable=True)
+
+# CartItem(id, user_id, product_id)
+class CartItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
 
 # Autenticação
 @login_manager.user_loader
@@ -131,6 +138,22 @@ def get_products():
         product_list.append(product_data)
 
     return jsonify(product_list)
+
+# CART Endpoints
+@app.route('/api/cart/add/<int:product_id>', methods=['POST'])
+@login_required
+def add_to_cart(product_id):
+    # Usuário
+    user = User.query.get(int(current_user.id))
+    # Produto
+    product = Product.query.get(product_id)
+
+    if user and product:
+        cartItem = CartItem(user_id=user.id,product_id=product.id)
+        db.session.add(cartItem)
+        db.session.commit()
+        return jsonify({'message': 'Item added to the cart successfully'})
+    return jsonify({'message': 'Failed to add item to the cart'}), 400
 
 # Executando o app com o método de depuração ativado
 if __name__ == '__main__':
