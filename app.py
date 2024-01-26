@@ -62,7 +62,7 @@ def login():
 def logout():
     logout_user()
     return jsonify({'message': 'Logged out successfully'})
-    
+
 # Add Product
 @app.route('/api/products/add', methods=['POST'])
 @login_required
@@ -154,6 +154,16 @@ def add_to_cart(product_id):
         db.session.commit()
         return jsonify({'message': 'Item added to the cart successfully'})
     return jsonify({'message': 'Failed to add item to the cart'}), 400
+
+@app.route('/api/cart/remove/<int:item_id>', methods=['DELETE'])
+@login_required
+def remove_item_from_cart(item_id):
+    cart_item = CartItem.query.filter_by(user_id=current_user.id,product_id=item_id).first()
+    if cart_item:
+        db.session.delete(cart_item)
+        db.session.commit()
+        return jsonify({ 'message': 'Item removed successfully' })
+    return jsonify({ 'message': 'Item not found' }), 400
 
 # Executando o app com o método de depuração ativado
 if __name__ == '__main__':
