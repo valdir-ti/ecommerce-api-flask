@@ -165,6 +165,26 @@ def remove_item_from_cart(item_id):
         return jsonify({ 'message': 'Item removed successfully' })
     return jsonify({ 'message': 'Item not found' }), 400
 
+@app.route('/api/cart', methods=['GET'])
+@login_required
+def cart_list():
+    user = User.query.get(int(current_user.id))
+    cart_items = user.cart
+    cart_list = []
+    if cart_items:
+        for cart_item in cart_items:
+            product = Product.query.get(cart_item.product_id)
+            cart_item = {
+                'id': cart_item.id,
+                'user_id': cart_item.user_id,
+                'product_id': cart_item.product_id,
+                'product_name': product.name,
+                'product_price': product.price
+            }
+            cart_list.append(cart_item)
+        return jsonify(cart_list)
+    return jsonify({ 'message': 'Cart not found' }), 400
+
 # Executando o app com o método de depuração ativado
 if __name__ == '__main__':
     app.run(debug=True)
