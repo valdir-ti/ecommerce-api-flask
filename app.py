@@ -185,6 +185,17 @@ def cart_list():
         return jsonify(cart_list)
     return jsonify({ 'message': 'Cart not found' }), 400
 
+@app.route('/api/cart/checkout', methods=['POST'])
+@login_required
+def checkout():
+    user = User.query.get(int(current_user.id))
+    cart_items = user.cart
+    for item in cart_items:
+        db.session.delete(item)
+    db.session.commit()
+    return jsonify({'message': 'Checkout successfully'})
+
+
 # Executando o app com o método de depuração ativado
 if __name__ == '__main__':
     app.run(debug=True)
