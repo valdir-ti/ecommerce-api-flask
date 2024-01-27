@@ -43,7 +43,7 @@ def load_user(user_id):
 # Definição das rotas
 @application.route('/')
 def helloWorld():
-    return 'App is running!'
+    return jsonify({'message': 'App is running!'})
 
 # Login
 @application.route('/login', methods=['POST'])
